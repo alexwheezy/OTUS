@@ -51,3 +51,43 @@ impl House {
         report
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn initialize_house() -> House {
+        let initialize_apartament = Apartament::new(
+            "Living room",
+            vec!["Socket".to_owned(), "Thermo".to_owned()],
+        );
+
+        let house = House {
+            name: "Paradise".to_owned(),
+            rooms: vec![initialize_apartament],
+        };
+
+        house
+    }
+
+    #[test]
+    fn test_constructed() {
+        let _house = initialize_house();
+    }
+
+    #[test]
+    fn test_get_rooms() {
+        let house = initialize_house();
+        let expected = vec!["Living room"];
+        let output = house.get_rooms();
+        assert_eq!(output, expected);
+    }
+
+    #[test]
+    fn test_get_devices() {
+        let house = initialize_house();
+        let expected = vec!["Socket".to_owned(), "Thermo".to_owned()];
+        let output = house.devices("Living room");
+        assert_eq!(output, expected);
+    }
+}

@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+#[derive(Debug, PartialEq)]
 pub enum Enable {
     On,
     Off,
@@ -15,17 +16,20 @@ impl Display for Enable {
 }
 
 pub mod physics {
+    #[derive(Debug, PartialEq)]
     pub enum Power {
         Watt(f32),
         Kilowatt(f32),
     }
 
+    #[derive(Debug, PartialEq)]
     pub enum Temperature {
         Celsius(f32),
         Fahrenheit(f32),
         Kelvin(f32),
     }
 
+    #[derive(Debug, PartialEq)]
     pub struct Humidity(pub f32);
 }
 

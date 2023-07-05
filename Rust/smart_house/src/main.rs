@@ -1,9 +1,12 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use smart_house::devices::smart::{socket::Socket, thermo::Thermometer};
-use smart_house::house::{apartament::Apartament, House};
-use smart_house::{providers::info::*, units::physics::*};
+use smart_house::{
+    devices::smart::{socket::Socket, thermo::Thermometer},
+    house::{apartament::Apartament, House},
+    providers::info::{BorrowingDeviceInfoProvider, OwningDeviceInfoProvider},
+    units::physics::{Power, Temperature},
+};
 
 fn main() {
     // Инициализация устройств
