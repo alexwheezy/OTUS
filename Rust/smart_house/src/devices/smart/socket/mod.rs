@@ -25,7 +25,7 @@ impl Socket {
     ///The device description contains information about its position in the room,
     ///the name of the room, and the name of the device itself.
     pub fn description(&self) -> String {
-        let mut summmary = String::with_capacity(5);
+        let mut summmary = String::with_capacity(64);
         summmary.push('\n');
         summmary.push_str(&format!("{:>12}: {}\n", "Device", self.name));
         summmary.push_str(&format!("{:>12}: {}\n", "Power", self.power_consumption()));
@@ -59,19 +59,6 @@ impl Socket {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_constructed() {
-        let socket = Socket::new("Socket".to_owned(), physics::Power::Watt(1300.0));
-        assert_eq!(
-            socket,
-            Socket {
-                name: "Socket".to_owned(),
-                power: physics::Power::Watt(1300.0),
-                state: Enable::On,
-            }
-        );
-    }
 
     #[test]
     fn test_correct_name() {

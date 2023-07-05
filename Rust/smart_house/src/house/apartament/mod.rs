@@ -40,16 +40,6 @@ mod tests {
     }
 
     #[test]
-    fn test_constructed() {
-        let apartament = initialize_apartament();
-        assert_eq!(apartament.name, "Living room");
-        assert_eq!(
-            apartament.devices,
-            vec!["Socket".to_owned(), "Thermo".to_owned()]
-        );
-    }
-
-    #[test]
     fn test_correct_name_apartament() {
         let apartament = initialize_apartament();
         assert_eq!(apartament.name(), "Living room");

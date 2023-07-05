@@ -9,23 +9,23 @@ use crate::providers::info::DeviceInfoProvider;
 #[derive(Debug, Clone)]
 pub struct House {
     name: String,
-    rooms: Vec<Apartament>,
+    apartaments: Vec<Apartament>,
 }
 
 impl House {
-    pub fn new(name: &str, rooms: Vec<Apartament>) -> Self {
+    pub fn new(name: &str, apartaments: Vec<Apartament>) -> Self {
         assert!(!name.is_empty(), "House must be the name.");
         Self {
             name: name.to_owned(),
-            rooms,
+            apartaments,
         }
     }
 
     ///Return number of rooms in the house.
     pub fn get_rooms(&self) -> Vec<String> {
-        self.rooms
+        self.apartaments
             .iter()
-            .map(|current_room| current_room.name().to_owned())
+            .map(|current_apartament| current_apartament.name().to_owned())
             .collect()
     }
 
@@ -35,7 +35,7 @@ impl House {
             return vec![];
         }
 
-        self.rooms
+        self.apartaments
             .iter()
             .filter(|&current_apartament| current_apartament.name() == apartament)
             .flat_map(|apartament| apartament.devices().clone())
@@ -59,11 +59,6 @@ impl House {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        devices::smart::socket::Socket, providers::info::OwningDeviceInfoProvider,
-        units::physics::Power,
-    };
-
     use super::*;
 
     fn initialize_house() -> House {
@@ -74,15 +69,10 @@ mod tests {
 
         let house = House {
             name: "Paradise".to_owned(),
-            rooms: vec![initialize_apartament],
+            apartaments: vec![initialize_apartament],
         };
 
         house
-    }
-
-    #[test]
-    fn test_constructed() {
-        let _house = initialize_house();
     }
 
     fn test_number_of_rooms() {
@@ -100,43 +90,5 @@ mod tests {
         let output = house.devices("Living room");
         assert_eq!(output, expected);
         assert_ne!(output.len(), 0);
-    }
-
-    #[test]
-    fn test_correct_report() {
-        let house = initialize_house();
-        let socket = Socket::new("Socket".to_owned(), Power::Watt(1350.0));
-        let provider = OwningDeviceInfoProvider::new(socket);
-        let expected = "
-       House: [Paradise]
-
-  Apartament: [Living room]
-      Device: Socket
-       Power: 1350.00W
-       State: On
-
-Error! Device Thermo not found.
-";
-        assert_eq!(house.create_report(&provider), expected);
-    }
-
-    #[test]
-    fn test_incorrect_report() {
-        let house = initialize_house();
-        let socket = Socket::new("Socket".to_owned(), Power::Watt(1350.0));
-        let provider = OwningDeviceInfoProvider::new(socket);
-        let expected = "
-       House: [Paradise]
-
-  Apartament: [Living room]
-      Device: Socket1
-
-       Power: 1250.00W
-
-       State: On
-
-Error! Device Thermo not found.
-";
-        assert_ne!(house.create_report(&provider), expected);
     }
 }

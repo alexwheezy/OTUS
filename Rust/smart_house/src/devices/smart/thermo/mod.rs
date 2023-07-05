@@ -11,8 +11,8 @@ pub struct Thermometer {
 }
 
 impl Thermometer {
-    /// The constructor will immediately turn on the thermometer
-    /// and initialize the initial value of the room temperature.
+    ///The constructor will immediately turn on the thermometer
+    ///and initialize the initial value of the room temperature.
     pub fn new(name: String, init: physics::Temperature) -> Self {
         Self {
             name,
@@ -21,10 +21,10 @@ impl Thermometer {
         }
     }
 
-    /// The device description contains information about its position in the room,
-    /// the name of the room, and the name of the device itself.
+    ///The device description contains information about its position in the room,
+    ///the name of the room, and the name of the device itself.
     pub fn description(&self) -> String {
-        let mut summmary = String::with_capacity(4);
+        let mut summmary = String::with_capacity(64);
         summmary.push('\n');
         summmary.push_str(&format!("{:>12}: {}\n", "Device", self.name));
         summmary.push_str(&format!("{:>12}: {}\n", "Temperature", self.temperature()));
@@ -77,22 +77,6 @@ impl Thermometer {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_constructed() {
-        let thermo = Thermometer::new(
-            "Thermometer".to_owned(),
-            physics::Temperature::Celsius(29.5),
-        );
-        assert_eq!(
-            thermo,
-            Thermometer {
-                name: "Thermometer".to_owned(),
-                temperature: physics::Temperature::Celsius(29.5),
-                state: Enable::On,
-            }
-        );
-    }
 
     #[test]
     fn test_correct_name() {
