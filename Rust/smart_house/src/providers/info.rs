@@ -32,10 +32,7 @@ pub struct BorrowingDeviceInfoProvider<'a, 'b> {
 
 impl<'a, 'b> BorrowingDeviceInfoProvider<'a, 'b> {
     pub fn new(socket: &'a Socket, thermo: &'b Thermometer) -> Self {
-        Self {
-            socket: &socket,
-            thermo: &thermo,
-        }
+        Self { socket, thermo }
     }
 }
 
@@ -59,7 +56,7 @@ mod tests {
 
     fn devices() -> (Socket, Thermometer) {
         (
-            Socket::new("Socket".to_owned(), Power::Watt(0.35)),
+            Socket::new("Socket".to_owned(), Power::Watt(1230.0)),
             Thermometer::new("Thermo".to_owned(), Temperature::Celsius(30.1)),
         )
     }
@@ -85,7 +82,7 @@ mod tests {
         let owning_provider = OwningDeviceInfoProvider::new(socket);
         assert_eq!(
             owning_provider.status("Socket"),
-            Socket::new("Socket".to_owned(), Power::Watt(0.35)).description()
+            Socket::new("Socket".to_owned(), Power::Watt(1230.0)).description()
         );
     }
 }

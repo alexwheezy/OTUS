@@ -33,28 +33,35 @@ impl Thermometer {
         summmary
     }
 
-    /// The device name
+    ///Return the device name.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    #[doc(hidden)]
+    ///Return the current humidity in the apartement.
     fn humidity(&self) -> physics::Humidity {
         //TODO: Make a correct calculation of relative humidity.
         physics::Humidity(58.5)
     }
 
+    ///Return the current temperature in the apartement.
     pub fn temperature(&self) -> &physics::Temperature {
         &self.temperature
     }
 
+    #[doc(hidden)]
     fn into(&mut self, unit: physics::Temperature) {
         todo!("Implement conversion between different units for display")
     }
 
+    ///Setting a new temperature value.
     pub fn set(&mut self, value: physics::Temperature) {
         self.temperature = value;
     }
 
+    #[doc(hidden)]
+    ///Reset current device settings.
     fn reset(&mut self) {
         todo!("Implement a reset of the current device settings")
     }

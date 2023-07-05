@@ -14,13 +14,14 @@ pub struct House {
 
 impl House {
     pub fn new(name: &str, rooms: Vec<Apartament>) -> Self {
+        assert!(!name.is_empty(), "House must be the name.");
         Self {
             name: name.to_owned(),
             rooms,
         }
     }
 
-    ///Return list of rooms in the house.
+    ///Return number of rooms in the house.
     pub fn get_rooms(&self) -> Vec<String> {
         self.rooms
             .iter()
@@ -28,12 +29,16 @@ impl House {
             .collect()
     }
 
-    ///Return list of devices in the room.
-    pub fn devices(&self, room: &str) -> Vec<String> {
+    ///Return number of devices in the apartament.
+    pub fn devices(&self, apartament: &str) -> Vec<String> {
+        if apartament.is_empty() {
+            return vec![];
+        }
+
         self.rooms
             .iter()
-            .filter(|&current_room| current_room.name() == room)
-            .flat_map(|room| room.devices().clone())
+            .filter(|&current_apartament| current_apartament.name() == apartament)
+            .flat_map(|apartament| apartament.devices().clone())
             .collect()
     }
 
@@ -54,6 +59,11 @@ impl House {
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        devices::smart::socket::Socket, providers::info::OwningDeviceInfoProvider,
+        units::physics::Power,
+    };
+
     use super::*;
 
     fn initialize_house() -> House {
@@ -75,19 +85,58 @@ mod tests {
         let _house = initialize_house();
     }
 
-    #[test]
-    fn test_get_rooms() {
+    fn test_number_of_rooms() {
         let house = initialize_house();
         let expected = vec!["Living room"];
         let output = house.get_rooms();
         assert_eq!(output, expected);
+        assert_ne!(output.len(), 0);
     }
 
     #[test]
-    fn test_get_devices() {
+    fn test_number_of_devices() {
         let house = initialize_house();
         let expected = vec!["Socket".to_owned(), "Thermo".to_owned()];
         let output = house.devices("Living room");
         assert_eq!(output, expected);
+        assert_ne!(output.len(), 0);
+    }
+
+    #[test]
+    fn test_correct_report() {
+        let house = initialize_house();
+        let socket = Socket::new("Socket".to_owned(), Power::Watt(1350.0));
+        let provider = OwningDeviceInfoProvider::new(socket);
+        let expected = "
+       House: [Paradise]
+
+  Apartament: [Living room]
+      Device: Socket
+       Power: 1350.00W
+       State: On
+
+Error! Device Thermo not found.
+";
+        assert_eq!(house.create_report(&provider), expected);
+    }
+
+    #[test]
+    fn test_incorrect_report() {
+        let house = initialize_house();
+        let socket = Socket::new("Socket".to_owned(), Power::Watt(1350.0));
+        let provider = OwningDeviceInfoProvider::new(socket);
+        let expected = "
+       House: [Paradise]
+
+  Apartament: [Living room]
+      Device: Socket1
+
+       Power: 1250.00W
+
+       State: On
+
+Error! Device Thermo not found.
+";
+        assert_ne!(house.create_report(&provider), expected);
     }
 }

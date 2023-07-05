@@ -9,16 +9,19 @@ pub struct Apartament {
 
 impl Apartament {
     pub fn new(name: &str, devices: Vec<String>) -> Self {
+        assert!(!name.is_empty(), "The apartament must have a name.");
         Self {
             name: name.to_owned(),
             devices,
         }
     }
 
+    ///Return apartament name in house.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    ///Return all devices in apartament.
     pub fn devices(&self) -> &Vec<String> {
         &self.devices
     }
@@ -28,7 +31,7 @@ impl Apartament {
 mod tests {
     use super::*;
 
-    fn build_apartament() -> Apartament {
+    fn initialize_apartament() -> Apartament {
         let apartament = Apartament::new(
             "Living room",
             vec!["Socket".to_owned(), "Thermo".to_owned()],
@@ -38,7 +41,7 @@ mod tests {
 
     #[test]
     fn test_constructed() {
-        let apartament = build_apartament();
+        let apartament = initialize_apartament();
         assert_eq!(apartament.name, "Living room");
         assert_eq!(
             apartament.devices,
@@ -48,20 +51,20 @@ mod tests {
 
     #[test]
     fn test_correct_name_apartament() {
-        let apartament = build_apartament();
+        let apartament = initialize_apartament();
         assert_eq!(apartament.name(), "Living room");
     }
 
     #[test]
-    fn test_correct_name_devices() {
-        let apartament = build_apartament();
+    fn test_number_of_devices() {
+        let apartament = initialize_apartament();
         let expected = vec!["Socket".to_owned(), "Thermo".to_owned()];
         assert_eq!(apartament.devices(), &expected);
     }
 
     #[test]
-    fn test_corrent_size_rooms() {
-        let apartament = build_apartament();
+    fn test_number_of_rooms() {
+        let apartament = initialize_apartament();
         assert!(apartament.devices().len() == 2);
 
         let apartament = Apartament::new("Living room", vec![]);
