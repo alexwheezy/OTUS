@@ -1,7 +1,8 @@
 use crate::devices::smart::{socket::Socket, thermo::Thermometer};
+use crate::errors::DeviceError;
 
 pub trait DeviceInfoProvider {
-    fn status(&self, device: &str) -> String;
+    fn status(&self, device: &str) -> Result<String, DeviceError>;
 }
 
 #[derive(Debug, PartialEq)]
@@ -16,10 +17,10 @@ impl OwningDeviceInfoProvider {
 }
 
 impl DeviceInfoProvider for OwningDeviceInfoProvider {
-    fn status(&self, device: &str) -> String {
+    fn status(&self, device: &str) -> Result<String, DeviceError> {
         match self.socket.name() == device {
-            true => self.socket.description(),
-            false => format!("\nError! Device {} not found.\n", device),
+            true => Ok(self.socket.description()),
+            false => Err(DeviceError::NotFound(device.to_owned())),
         }
     }
 }
@@ -37,13 +38,13 @@ impl<'a, 'b> BorrowingDeviceInfoProvider<'a, 'b> {
 }
 
 impl<'a, 'b> DeviceInfoProvider for BorrowingDeviceInfoProvider<'a, 'b> {
-    fn status(&self, device: &str) -> String {
+    fn status(&self, device: &str) -> Result<String, DeviceError> {
         if self.socket.name() == device {
-            self.socket.description()
+            Ok(self.socket.description())
         } else if self.thermo.name() == device {
-            self.thermo.description()
+            Ok(self.thermo.description())
         } else {
-            format!("\nError! Device {} not found.\n", device)
+            Err(DeviceError::NotFound(device.to_owned()))
         }
     }
 }

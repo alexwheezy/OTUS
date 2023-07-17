@@ -3,7 +3,7 @@
 
 use smart_house::{
     devices::smart::{socket::Socket, thermo::Thermometer},
-    house::{apartament::Apartament, House},
+    house::{room::Room, House},
     providers::info::{BorrowingDeviceInfoProvider, OwningDeviceInfoProvider},
     units::physics::{Power, Temperature},
 };
@@ -19,15 +19,15 @@ fn main() {
     let house = House::new(
         "Paradise",
         vec![
-            Apartament::new(
+            Room::new(
                 "Living room",
-                vec!["Socket1".to_owned(), "Socket2".to_owned()],
+                vec![],
             ),
-            Apartament::new(
+            Room::new(
                 "Bedroom", 
-                vec!["Socket1".to_owned(), "Thermo1".to_owned()]
+                vec!["Socket1".to_owned(), "Thermo1".to_owned()],
             ),
-            Apartament::new(
+            Room::new(
                 "Kids room",
                 vec!["Socket2".to_owned(), "Thermo1".to_owned()],
             ),

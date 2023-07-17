@@ -1,16 +1,16 @@
 use smart_house::{
     devices::smart::{socket::Socket, thermo::Thermometer},
-    house::{apartament::Apartament, House},
+    house::{room::Room, House},
     providers::info::*,
     units::physics::*,
 };
 
 fn initialize_house() -> House {
-    let initialize_apartament = Apartament::new(
+    let initialize_room = Room::new(
         "Living room",
         vec!["Socket".to_owned(), "Thermo".to_owned()],
     );
-    let house = House::new("Paradise", vec![initialize_apartament]);
+    let house = House::new("Paradise", vec![initialize_room]);
     house
 }
 
@@ -25,8 +25,14 @@ fn devices() -> (Socket, Thermometer) {
 fn test_borrowing_status() {
     let (socket, thermo) = devices();
     let borrowing_provider = BorrowingDeviceInfoProvider::new(&socket, &thermo);
-    assert_eq!(borrowing_provider.status("Socket"), socket.description());
-    assert_eq!(borrowing_provider.status("Thermo"), thermo.description());
+    assert_eq!(
+        borrowing_provider.status("Socket").unwrap(),
+        socket.description()
+    );
+    assert_eq!(
+        borrowing_provider.status("Thermo").unwrap(),
+        thermo.description()
+    );
 }
 
 #[test]
@@ -34,7 +40,7 @@ fn test_owning_status() {
     let (socket, _) = devices();
     let owning_provider = OwningDeviceInfoProvider::new(socket);
     assert_eq!(
-        owning_provider.status("Socket"),
+        owning_provider.status("Socket").unwrap(),
         Socket::new("Socket".to_owned(), Power::Watt(1230.0)).description()
     );
 }
@@ -47,13 +53,15 @@ fn test_correct_report() {
     let expected = "
        House: [Paradise]
 
-  Apartament: [Living room]
+        Room: [Living room]
       Device: Socket
        Power: 1350.00W
        State: On
 
-Error! Device Thermo not found.
+      Device: Thermo not found.
 ";
+    println!("{}", house.create_report(&provider));
+    println!("{}", expected);
     assert_eq!(house.create_report(&provider), expected);
 }
 
@@ -65,7 +73,8 @@ fn test_incorrect_report() {
     let expected = "
        House: [Paradise]
 
-  Apartament: [Living room]
+
+Room: [Living room]
       Device: Socket1
 
        Power: 1250.00W

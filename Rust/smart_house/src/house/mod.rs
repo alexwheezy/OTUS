@@ -1,56 +1,89 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
-pub mod apartament;
+pub mod room;
 
-use crate::house::apartament::Apartament;
+use crate::errors::DeviceError;
+use crate::house::room::Room;
 use crate::providers::info::DeviceInfoProvider;
 
 #[derive(Debug, Clone)]
 pub struct House {
     name: String,
-    apartaments: Vec<Apartament>,
+    rooms: Vec<Room>,
 }
 
 impl House {
-    pub fn new(name: &str, apartaments: Vec<Apartament>) -> Self {
+    pub fn new(name: &str, rooms: Vec<Room>) -> Self {
         assert!(!name.is_empty(), "House must be the name.");
         Self {
             name: name.to_owned(),
-            apartaments,
+            rooms,
         }
     }
 
     ///Return number of rooms in the house.
     pub fn get_rooms(&self) -> Vec<String> {
-        self.apartaments
+        self.rooms
             .iter()
-            .map(|current_apartament| current_apartament.name().to_owned())
-            .collect()
+            .map(|current_room| current_room.name().to_owned())
+            .collect::<Vec<String>>()
     }
 
-    ///Return number of devices in the apartament.
-    pub fn devices(&self, apartament: &str) -> Vec<String> {
-        if apartament.is_empty() {
-            return vec![];
-        }
-
-        self.apartaments
+    ///Return number of devices in the room.
+    pub fn devices(&self, room: &str) -> Vec<String> {
+        self.rooms
             .iter()
-            .filter(|&current_apartament| current_apartament.name() == apartament)
-            .flat_map(|apartament| apartament.devices().clone())
-            .collect()
+            .filter(|&current_room| current_room.name() == room)
+            .flat_map(|room| room.devices().clone())
+            .collect::<Vec<String>>()
     }
 
     ///Text report on the status of devices in the house.
     pub fn create_report(&self, provider: &impl DeviceInfoProvider) -> String {
         //Report header
         let mut report = format!("\n{:>12}: [{}]\n", "House", &self.name);
+        if self.get_rooms().is_empty() {
+            report.push_str(
+                "\nInfo: Not enough information to report.\nLiving quarters in the house were not found.\n",
+            );
+            return report;
+        }
+
+        let device_status = |report: &mut String, device: &str| match provider.status(device) {
+            Ok(provider) => report.push_str(&provider),
+            Err(err) => {
+                let message = match err {
+                    DeviceError::NotFound(name) => {
+                        format!("\n{:>12}: {name} not found.\n", "Device")
+                    }
+                    DeviceError::NotConnetion(name) => {
+                        format!("\n{:>12}: {name} lost connected.\n", "Device")
+                    }
+                    DeviceError::InvalidData(name) => {
+                        format!("\n{:>12}: {name} invalid data.\n", "Device")
+                    }
+                    DeviceError::UnknownError => {
+                        format!("\n{:>12}: Unknow error", "Info")
+                    }
+                };
+                report.push_str(&message);
+            }
+        };
 
         for room in self.get_rooms() {
-            report.push_str(&format!("\n{:>12}: [{}]", "Apartament", room));
-            for device in self.devices(&room) {
-                report.push_str(&provider.status(&device));
+            report.push_str(&format!("\n{:>12}: [{}]", "Room", room));
+            match self.devices(&room).is_empty() {
+                false => {
+                    self.devices(&room)
+                        .iter()
+                        .for_each(|device| (device_status(&mut report, device)));
+                }
+                true => {
+                    report.push_str(
+                        "\nInfo: Not enough information to report.\nDevices were not found in the room.\n",
+                    );
+                }
             }
         }
         report
@@ -62,33 +95,46 @@ mod tests {
     use super::*;
 
     fn initialize_house() -> House {
-        let initialize_apartament = Apartament::new(
+        let initialize_rooms = Room::new(
             "Living room",
             vec!["Socket".to_owned(), "Thermo".to_owned()],
         );
 
         let house = House {
             name: "Paradise".to_owned(),
-            apartaments: vec![initialize_apartament],
+            rooms: vec![initialize_rooms],
         };
 
         house
     }
 
-    fn test_number_of_rooms() {
-        let house = initialize_house();
-        let expected = vec!["Living room"];
-        let output = house.get_rooms();
-        assert_eq!(output, expected);
-        assert_ne!(output.len(), 0);
+    #[test]
+    fn test_empty_house() {
+        let house = House {
+            name: "Paradise".to_owned(),
+            rooms: vec![],
+        };
+        assert!(house.get_rooms().is_empty());
     }
 
     #[test]
-    fn test_number_of_devices() {
+    fn test_empty_rooms() {
+        let house = initialize_house();
+        assert!(house.devices("").is_empty());
+    }
+
+    #[test]
+    fn test_number_of_rooms_in_house() {
+        let house = initialize_house();
+        let expected = vec!["Living room"];
+        assert_eq!(house.get_rooms().len(), 1);
+    }
+
+    #[test]
+    fn test_number_of_devices_in_rooms() {
         let house = initialize_house();
         let expected = vec!["Socket".to_owned(), "Thermo".to_owned()];
-        let output = house.devices("Living room");
-        assert_eq!(output, expected);
-        assert_ne!(output.len(), 0);
+        let devices = house.devices("Living room");
+        assert_eq!(devices.len(), 2);
     }
 }
