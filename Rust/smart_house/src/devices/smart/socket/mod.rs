@@ -40,12 +40,16 @@ impl Socket {
     ///The device description contains information about its position in the room,
     ///the name of the room, and the name of the device itself.
     pub fn description(&self) -> String {
-        let mut summmary = String::with_capacity(64);
-        summmary.push('\n');
-        summmary.push_str(&format!("{:>12}: {}\n", "Device", self.name));
-        summmary.push_str(&format!("{:>12}: {}\n", "Power", self.power_consumption()));
-        summmary.push_str(&format!("{:>12}: {}\n", "State", self.state));
-        summmary
+        format!(
+            r#"
+      Device: {name}
+       Power: {power}
+       State: {state}
+            "#,
+            name = self.name,
+            power = self.power_consumption(),
+            state = self.state
+        )
     }
 
     ///Return device the name.
@@ -124,13 +128,13 @@ mod tests {
     #[test]
     fn test_correct_description() {
         let socket = Socket::new("Socket".to_owned(), Power::Watt(1510.0));
-
-        let mut expected = String::with_capacity(5);
-        expected.push('\n');
-        expected.push_str(&format!("{:>12}: {}\n", "Device", "Socket"));
-        expected.push_str(&format!("{:>12}: {}\n", "Power", "1510.00W"));
-        expected.push_str(&format!("{:>12}: {}\n", "State", "On"));
-
+        let expected = format!(
+            r#"
+      Device: Socket
+       Power: 1510.00W
+       State: On
+            "#
+        );
         assert_eq!(socket.description(), expected);
     }
 

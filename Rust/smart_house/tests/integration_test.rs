@@ -57,7 +57,7 @@ fn test_correct_report() {
       Device: Socket
        Power: 1350.00W
        State: On
-
+            
       Device: Thermo not found.
 ";
     println!("{}", house.create_report(&provider));

@@ -55,13 +55,17 @@ impl Thermometer {
     ///The device description contains information about its position in the room,
     ///the name of the room, and the name of the device itself.
     pub fn description(&self) -> String {
-        let mut summmary = String::with_capacity(64);
-        summmary.push('\n');
-        summmary.push_str(&format!("{:>12}: {}\n", "Device", self.name));
-        summmary.push_str(&format!("{:>12}: {}\n", "Temperature", self.temperature()));
-        summmary.push_str(&format!("{:>12}: {}\n", "Humidity", self.humidity()));
-        summmary.push_str(&format!("{:>12}: {}\n", "State", self.state));
-        summmary
+        format!(
+            r#"
+      Device: {name}
+ Temperature: {temperature}
+    Humidity: {humidity}
+       State: {state}"#,
+            name = self.name,
+            temperature = self.temperature(),
+            humidity = self.humidity(),
+            state = self.state,
+        )
     }
 
     ///Return the device name.
@@ -200,15 +204,13 @@ mod tests {
     #[test]
     fn test_correct_description() {
         let thermo = Thermometer::new("Thermometer".to_owned(), Temperature::Celsius(29.5));
-
-        let mut expected = String::with_capacity(5);
-        expected.push('\n');
-
-        expected.push_str(&format!("{:>12}: {}\n", "Device", "Thermometer"));
-        expected.push_str(&format!("{:>12}: {}\n", "Temperature", "29.5\u{00b0}C"));
-        expected.push_str(&format!("{:>12}: {}\n", "Humidity", "40.7\u{0025}"));
-        expected.push_str(&format!("{:>12}: {}\n", "State", "On"));
-
+        let expected = format!(
+            r#"
+      Device: Thermometer
+ Temperature: 29.5°C
+    Humidity: 40.7%
+       State: On"#,
+        );
         assert_eq!(thermo.description(), expected);
     }
 }

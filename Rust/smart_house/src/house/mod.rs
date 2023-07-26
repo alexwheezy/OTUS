@@ -42,10 +42,16 @@ impl House {
     ///Text report on the status of devices in the house.
     pub fn create_report(&self, provider: &impl DeviceInfoProvider) -> String {
         //Report header
-        let mut report = format!("\n{:>12}: [{}]\n", "House", &self.name);
+        let mut report = format!(
+            r#"
+       House: [{name}]"#,
+            name = &self.name
+        );
         if self.get_rooms().is_empty() {
             report.push_str(
-                "\nInfo: Not enough information to report.\nLiving quarters in the house were not found.\n",
+                r#"
+        Info: Not enough information to report.
+        Living quarters in the house were not found."#,
             );
             return report;
         }
@@ -72,18 +78,22 @@ impl House {
         };
 
         for room in self.get_rooms() {
-            report.push_str(&format!("\n{:>12}: [{}]", "Room", room));
+            report.push_str(&format!(
+                r#"
+
+        Room: [{room}]"#,
+            ));
             match self.devices(&room).is_empty() {
                 false => {
                     self.devices(&room)
                         .iter()
                         .for_each(|device| (device_status(&mut report, device)));
                 }
-                true => {
-                    report.push_str(
-                        "\nInfo: Not enough information to report.\nDevices were not found in the room.\n",
-                    );
-                }
+                true => report.push_str(
+                    r#"
+        Info: Not enough information to report.
+        Devices were not found in the room."#,
+                ),
             }
         }
         report
@@ -99,12 +109,10 @@ mod tests {
             "Living room",
             vec!["Socket".to_owned(), "Thermo".to_owned()],
         );
-
         let house = House {
             name: "Paradise".to_owned(),
             rooms: vec![initialize_rooms],
         };
-
         house
     }
 
