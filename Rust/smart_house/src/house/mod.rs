@@ -3,7 +3,8 @@
 
 pub mod room;
 
-use crate::errors::DeviceError;
+use std::error::Error;
+
 use crate::house::room::Room;
 use crate::providers::info::DeviceInfoProvider;
 
@@ -50,8 +51,8 @@ impl House {
         if self.get_rooms().is_empty() {
             report.push_str(
                 r#"
-        Info: Not enough information to report.
-        Living quarters in the house were not found."#,
+        Info: Not enough information to report
+        Living quarters in the house were not found"#,
             );
             return report;
         }
@@ -59,21 +60,7 @@ impl House {
         let device_status = |report: &mut String, device: &str| match provider.status(device) {
             Ok(provider) => report.push_str(&provider),
             Err(err) => {
-                let message = match err {
-                    DeviceError::NotFound(name) => {
-                        format!("\n{:>12}: {name} not found.\n", "Device")
-                    }
-                    DeviceError::NotConnetion(name) => {
-                        format!("\n{:>12}: {name} lost connected.\n", "Device")
-                    }
-                    DeviceError::InvalidData(name) => {
-                        format!("\n{:>12}: {name} invalid data.\n", "Device")
-                    }
-                    DeviceError::UnknownError => {
-                        format!("\n{:>12}: Unknow error", "Info")
-                    }
-                };
-                report.push_str(&message);
+                report.push_str(&format!("\n{:>12}: {}\n", "Device", err.source().unwrap()))
             }
         };
 
@@ -91,8 +78,8 @@ impl House {
                 }
                 true => report.push_str(
                     r#"
-        Info: Not enough information to report.
-        Devices were not found in the room."#,
+        Info: Not enough information to report
+        Devices were not found in the room"#,
                 ),
             }
         }
