@@ -1,51 +1,36 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use std::collections::{HashMap, HashSet};
-
 use smart_house::{
-    devices::smart::{socket::Socket, thermo::Thermometer},
-    house::{room::Room, House},
-    providers::info::{BorrowingDeviceInfoProvider, DeviceInfoProvider, OwningDeviceInfoProvider},
-    units::physics::{Power, Temperature},
+    devices::smart::socket::Socket,
+    house::{House, Rooms},
+    providers::info::OwningDeviceInfoProvider,
+    units::physics::Power,
 };
 
 fn main() {
-    //Initialization of used devices.
+    // Инициализация устройств
     let socket1 = Socket::new("Socket1".to_owned(), Power::Watt(1350.0));
-    let socket2 = Socket::new("Socket2".to_owned(), Power::Kilowatt(1.50));
-    let thermo = Thermometer::new("Thermo1".to_owned(), Temperature::Celsius(32.5));
+    let socket2 = Socket::new("Socket2".to_owned(), Power::Watt(1120.0));
 
-    let devices_living_room =
-        Room::new(HashSet::from(["Socket1".to_owned(), "Socket2".to_owned()]));
-    let devices_bedroom = Room::new(HashSet::from(["Socket1".to_owned(), "Thermo1".to_owned()]));
-    let devices_kids_room = Room::new(HashSet::from(["Socket2".to_owned(), "Thermo1".to_owned()]));
+    // Инициализация дома
+    let mut house = House::new("Paradise", Rooms::new());
 
-    //Organization of premises in the house.
-    let house = House::new(
-        "Paradise",
-        HashMap::from([
-            ("Living room".to_owned(), devices_living_room),
-            ("Bedroom".to_owned(), devices_bedroom),
-            ("Kids room".to_owned(), devices_kids_room),
-        ]),
-    );
+    house
+        .add_room("Kids room")
+        .add_device(socket1.name())
+        .add_device(socket2.name());
 
-    //Create a status the device using with `OwningDeviceInfoProvider`.
+    house.add_room("Guest room").add_device(socket1.name());
+
+    // Строим отчёт с использованием `OwningDeviceInfoProvider`.
     let info_provider_1 = OwningDeviceInfoProvider::new(socket1);
-    println!(
-        "{}",
-        info_provider_1
-            .status("Socket1")
-            .unwrap_or("Device not found.".to_owned())
-    );
+    let info_provider_2 = OwningDeviceInfoProvider::new(socket2);
 
-    //Create a status the device using with `BorrowingDeviceInfoProvider`.
-    let info_provider_2 = BorrowingDeviceInfoProvider::new(&socket2, &thermo);
-    println!(
-        "{}",
-        info_provider_2
-            .status("Thermo1")
-            .unwrap_or("Device not found.".to_owned())
-    );
+    let report1 = house.create_report(&info_provider_1);
+    let report2 = house.create_report(&info_provider_2);
+
+    // Выводим отчёты на экран:
+    println!("Report #1: {report1}");
+    println!("Report #2: {report2}");
 }

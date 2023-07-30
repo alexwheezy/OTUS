@@ -3,10 +3,7 @@
 
 use smart_house::{
     devices::smart::{socket::Socket, thermo::Thermometer},
-    house::{
-        room::{Devices, Room},
-        House, Rooms,
-    },
+    house::{House, Rooms},
     providers::info::{BorrowingDeviceInfoProvider, OwningDeviceInfoProvider},
     units::physics::{Power, Temperature},
 };
@@ -17,19 +14,17 @@ fn main() {
     let socket2 = Socket::new("Socket2".to_owned(), Power::Kilowatt(1.50));
     let thermo = Thermometer::new("Thermo1".to_owned(), Temperature::Celsius(32.5));
 
-    let devices_living_room = Room::new(Devices::new());
-    let devices_bedroom = Room::new(Devices::from(["Socket1".to_owned(), "Thermo1".to_owned()]));
-    let devices_kids_room = Room::new(Devices::from(["Socket2".to_owned(), "Thermo1".to_owned()]));
-
     // Инициализация дома
-    let house = House::new(
-        "Paradise",
-        Rooms::from([
-            ("Living room".to_owned(), devices_living_room),
-            ("Bedroom".to_owned(), devices_bedroom),
-            ("Kids room".to_owned(), devices_kids_room),
-        ]),
-    );
+    let mut house = House::new("Paradise", Rooms::new());
+    let room_names = ["Living room", "Bedroom", "Kids room", "Guest room"];
+
+    for name in room_names {
+        house
+            .add_room(name)
+            .add_device(socket1.name())
+            .add_device(socket2.name())
+            .add_device(thermo.name());
+    }
 
     // Строим отчёт с использованием `OwningDeviceInfoProvider`.
     let info_provider_1 = OwningDeviceInfoProvider::new(socket1);

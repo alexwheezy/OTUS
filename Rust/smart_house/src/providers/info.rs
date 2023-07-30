@@ -1,3 +1,4 @@
+#![allow(unused_assignments)]
 use crate::devices::smart::{socket::Socket, thermo::Thermometer};
 use crate::errors::{CheckStatusError, DeviceErrorKind};
 
@@ -18,10 +19,11 @@ impl OwningDeviceInfoProvider {
 
 impl DeviceInfoProvider for OwningDeviceInfoProvider {
     fn status(&self, device: &str) -> Result<String, CheckStatusError> {
-        match self.socket.name() == device {
+        let socket_name = self.socket.name();
+        match socket_name == device {
             true => Ok(self.socket.description()),
             false => Err(CheckStatusError {
-                kind: DeviceErrorKind::NotFound(device.to_owned()),
+                kind: DeviceErrorKind::NotFound(socket_name.to_owned()),
             }),
         }
     }
@@ -41,14 +43,15 @@ impl<'a, 'b> BorrowingDeviceInfoProvider<'a, 'b> {
 
 impl<'a, 'b> DeviceInfoProvider for BorrowingDeviceInfoProvider<'a, 'b> {
     fn status(&self, device: &str) -> Result<String, CheckStatusError> {
+        let mut device_name = self.socket.name();
         if self.socket.name() == device {
-            Ok(self.socket.description())
+            return Ok(self.socket.description());
         } else if self.thermo.name() == device {
-            Ok(self.thermo.description())
-        } else {
-            return Err(CheckStatusError {
-                kind: DeviceErrorKind::NotFound(device.to_owned()),
-            });
+            device_name = self.thermo.name();
+            return Ok(self.thermo.description());
         }
+        Err(CheckStatusError {
+            kind: DeviceErrorKind::NotFound(device_name.to_owned()),
+        })
     }
 }

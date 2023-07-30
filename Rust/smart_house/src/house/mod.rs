@@ -26,25 +26,23 @@ impl House {
         }
     }
 
-    pub fn add_room(&mut self, name: String) {
-        todo!("Not implemented add room in the house");
-    }
-
-    pub fn remove_room(&mut self, name: String) {
-        todo!("Not implemented remove room in the house");
-    }
-
-    ///Return number of rooms in the house.
-    pub fn get_rooms(&self) -> &Rooms {
+    ///Returns a list of available rooms in the house.
+    pub fn rooms(&self) -> &Rooms {
         &self.rooms
     }
 
-    pub fn add_device(&mut self, room: Room, device: String) {
-        todo!("Not implemented add device in the room");
+    ///The method adds a new room to the house and returns a mutable reference to the new room.
+    pub fn add_room(&mut self, name: &str) -> &mut Room {
+        self.rooms
+            .entry(name.to_owned())
+            .or_insert(Room::new(Devices::new()));
+        self.rooms.get_mut(name).unwrap()
     }
 
-    pub fn remove_device(&mut self, room: Room, device: String) {
-        todo!("Not implemented remove device in the room");
+    ///Delete the room if it is found.
+    ///Removing the same room does not lead to panic.
+    pub fn remove_room(&mut self, name: &str) {
+        self.rooms.remove(name);
     }
 
     ///Return number of devices in the room.
@@ -63,7 +61,7 @@ impl House {
        House: [{name}]"#,
             name = &self.name
         );
-        if self.get_rooms().is_empty() {
+        if self.rooms().is_empty() {
             report.push_str(
                 r#"
         Info: Not enough information to report
@@ -79,7 +77,7 @@ impl House {
             }
         };
 
-        for (room, devices) in self.get_rooms() {
+        for (room, devices) in self.rooms() {
             report.push_str(&format!(
                 r#"
 
@@ -123,27 +121,67 @@ mod tests {
             name: "Paradise".to_owned(),
             rooms: HashMap::new(),
         };
-        assert!(house.get_rooms().is_empty());
+        assert!(house.rooms().is_empty());
     }
 
     #[test]
     fn test_empty_rooms() {
         let house = initialize_house();
+
         assert!(house.devices("").is_none());
     }
 
     #[test]
     fn test_number_of_rooms_in_house() {
         let house = initialize_house();
-        let expected = vec!["Living room"];
-        assert_eq!(house.get_rooms().len(), 1);
+
+        assert_eq!(house.rooms().len(), 1);
     }
 
     #[test]
     fn test_number_of_devices_in_rooms() {
         let house = initialize_house();
-        let expected = vec!["Socket".to_owned(), "Thermo".to_owned()];
         let devices = house.devices("Living room");
+
         assert_eq!(devices.unwrap().len(), 2);
+    }
+
+    #[test]
+    fn test_another_add_room() {
+        let mut house = initialize_house();
+        house.add_room("Guest room");
+
+        assert_eq!(house.rooms().len(), 2);
+    }
+
+    #[test]
+    fn test_same_add_room() {
+        let mut house = initialize_house();
+        house.add_room("Living room");
+
+        assert_eq!(house.rooms().len(), 1);
+    }
+
+    #[test]
+    fn test_remove_room() {
+        let mut house = initialize_house();
+        house.add_room("Living room");
+        house.add_room("Guest room");
+        house.add_room("Kitchen");
+
+        assert_eq!(house.rooms().len(), 3);
+
+        house.remove_room("Living room");
+        assert_eq!(house.rooms().len(), 2);
+
+        house.remove_room("Test room");
+        assert_eq!(house.rooms().len(), 2);
+
+        house.remove_room("Guest room");
+        house.remove_room("Kitchen");
+        house.remove_room("Kitchen");
+        house.remove_room("Kitchen");
+
+        assert!(house.rooms().is_empty());
     }
 }
