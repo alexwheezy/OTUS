@@ -60,7 +60,8 @@ impl Thermometer {
       Device: {name}
  Temperature: {temperature}
     Humidity: {humidity}
-       State: {state}"#,
+       State: {state}
+       "#,
             name = self.name,
             temperature = self.temperature(),
             humidity = self.humidity(),
@@ -209,7 +210,8 @@ mod tests {
       Device: Thermometer
  Temperature: 29.5°C
     Humidity: 40.7%
-       State: On"#,
+       State: On
+       "#,
         );
         assert_eq!(thermo.description(), expected);
     }
