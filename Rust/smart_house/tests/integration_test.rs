@@ -9,11 +9,10 @@ use smart_house::{
 
 fn initialize_house() -> House {
     let initialize_devices = Room::new(HashSet::from(["Socket".to_owned(), "Thermo".to_owned()]));
-    let house = House::new(
+    House::new(
         "Paradise",
         HashMap::from([("Living room".to_owned(), initialize_devices)]),
-    );
-    house
+    )
 }
 
 fn devices() -> (Socket, Thermometer) {

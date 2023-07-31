@@ -128,13 +128,12 @@ mod tests {
     #[test]
     fn test_correct_description() {
         let socket = Socket::new("Socket".to_owned(), Power::Watt(1510.0));
-        let expected = format!(
-            r#"
+        let expected = r#"
       Device: Socket
        Power: 1510.00W
        State: On
             "#
-        );
+        .to_string();
         assert_eq!(socket.description(), expected);
     }
 

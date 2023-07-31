@@ -205,14 +205,13 @@ mod tests {
     #[test]
     fn test_correct_description() {
         let thermo = Thermometer::new("Thermometer".to_owned(), Temperature::Celsius(29.5));
-        let expected = format!(
-            r#"
+        let expected = r#"
       Device: Thermometer
  Temperature: 29.5°C
     Humidity: 40.7%
        State: On
-       "#,
-        );
+       "#
+        .to_string();
         assert_eq!(thermo.description(), expected);
     }
 }

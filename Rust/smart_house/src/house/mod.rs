@@ -108,11 +108,10 @@ mod tests {
     fn initialize_house() -> House {
         let initialize_devices =
             Room::new(Devices::from(["Socket".to_owned(), "Thermo".to_owned()]));
-        let house = House {
+        House {
             name: "Paradise".to_owned(),
             rooms: HashMap::from([("Living room".to_owned(), initialize_devices)]),
-        };
-        house
+        }
     }
 
     #[test]
