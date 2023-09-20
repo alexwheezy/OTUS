@@ -10,30 +10,30 @@ pub struct Room {
 }
 
 impl Room {
-    ///When creating a new room in the constructor, you can specify a list of required devices.
+    /// When creating a new room in the constructor, you can specify a list of required devices.
     pub fn new(devices: Devices) -> Self {
         Self { devices }
     }
 
-    ///Returns a list of available devices in the room.
+    /// Returns a list of available devices in the room.
     pub fn devices(&self) -> &Devices {
         &self.devices
     }
 
-    ///Returns the device name if found.
+    /// Returns the device name if found.
     pub fn get_device(&self, name: &str) -> Option<&str> {
         self.devices.get(name).map(|s| s.as_str())
     }
 
-    ///Adds a new device.
-    ///If the device already exists, then the method does not change the length of the device list.
+    /// Adds a new device.
+    /// If the device already exists, then the method does not change the length of the device list.
     pub fn add_device(&mut self, device: &str) -> &mut Self {
         self.devices.insert(device.to_owned());
         self
     }
 
-    ///Delete the device if it is found.
-    ///Removing the same device does not lead to panic.
+    /// Delete the device if it is found.
+    /// Removing the same device does not lead to panic.
     pub fn remove_device(&mut self, device: &str) {
         self.devices.remove(&device.to_owned());
     }

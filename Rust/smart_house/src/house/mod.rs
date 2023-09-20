@@ -7,7 +7,6 @@ use crate::house::room::{Devices, Room};
 use crate::providers::info::DeviceInfoProvider;
 
 use std::collections::HashMap;
-use std::error::Error;
 
 pub type Rooms = HashMap<String, Room>;
 
@@ -26,12 +25,12 @@ impl House {
         }
     }
 
-    ///Returns a list of available rooms in the house.
+    /// Returns a list of available rooms in the house.
     pub fn rooms(&self) -> &Rooms {
         &self.rooms
     }
 
-    ///The method adds a new room to the house and returns a mutable reference to the new room.
+    /// The method adds a new room to the house and returns a mutable reference to the new room.
     pub fn add_room(&mut self, name: &str) -> &mut Room {
         self.rooms
             .entry(name.to_owned())
@@ -39,23 +38,20 @@ impl House {
         self.rooms.get_mut(name).unwrap()
     }
 
-    ///Delete the room if it is found.
-    ///Removing the same room does not lead to panic.
+    /// Delete the room if it is found.
+    /// Removing the same room does not lead to panic.
     pub fn remove_room(&mut self, name: &str) {
         self.rooms.remove(name);
     }
 
-    ///Return number of devices in the room.
+    /// Return number of devices in the room.
     pub fn devices(&self, room: &str) -> Option<&Devices> {
-        match self.rooms.get(room) {
-            Some(room) => Some(room.devices()),
-            _ => None,
-        }
+        self.rooms.get(room).map(|room| room.devices())
     }
 
-    ///Text report on the status of devices in the house.
+    /// Text report on the status of devices in the house.
     pub fn create_report(&self, provider: &impl DeviceInfoProvider) -> String {
-        //Report header
+        // Report header
         let mut report = format!(
             r#"
        House: [{name}]"#,
@@ -72,9 +68,7 @@ impl House {
 
         let device_status = |report: &mut String, device: &str| match provider.status(device) {
             Ok(provider) => report.push_str(&provider),
-            Err(err) => {
-                report.push_str(&format!("\n{:>12}: {}\n", "Device", err.source().unwrap()))
-            }
+            Err(err) => report.push_str(&format!("\n{:>12}: {}\n", "Device", err)),
         };
 
         for (room, devices) in self.rooms() {
