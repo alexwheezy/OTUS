@@ -11,11 +11,11 @@ use crate::units::{
 
 #[derive(Debug, PartialEq)]
 pub struct Thermometer {
-    //Device name, can be anything.
+    // Device name, can be anything.
     name: String,
-    //The current room temperature indicator.
+    // The current room temperature indicator.
     temperature: Temperature,
-    //Relative humidity in the room.
+    // Relative humidity in the room.
     humidity: Humidity,
     state: Enable,
 }
@@ -32,11 +32,11 @@ impl Default for Thermometer {
 }
 
 impl Thermometer {
-    ///The constructor will immediately turn on the thermometer
-    ///and initialize the initial value of the room temperature.
+    /// The constructor will immediately turn on the thermometer
+    /// and initialize the initial value of the room temperature.
     pub fn new(name: String, init: Temperature) -> Self {
-        //NOTE: Very rough calculation of relative humidity in a room.
-        //Do I need to build a dependency table?
+        // NOTE: Very rough calculation of relative humidity in a room.
+        // Do I need to build a dependency table?
         let p = 0.012;
         let p0 = match init.as_celsius() {
             Celsius(value) => value / 1000.0,
@@ -52,8 +52,8 @@ impl Thermometer {
         }
     }
 
-    ///The device description contains information about its position in the room,
-    ///the name of the room, and the name of the device itself.
+    /// The device description contains information about its position in the room,
+    /// the name of the room, and the name of the device itself.
     pub fn description(&self) -> String {
         format!(
             r#"
@@ -69,17 +69,17 @@ impl Thermometer {
         )
     }
 
-    ///Return the device name.
+    /// Return the device name.
     pub fn name(&self) -> &str {
         &self.name
     }
 
-    ///Return the current humidity in the apartement.
+    /// Return the current humidity in the apartement.
     pub fn humidity(&self) -> &Humidity {
         &self.humidity
     }
 
-    ///The current room temperature received from the device.
+    /// The current room temperature received from the device.
     pub fn temperature(&self) -> &Temperature {
         &self.temperature
     }
@@ -93,7 +93,7 @@ impl Thermometer {
         self.temperature = units;
     }
 
-    ///Setting a new temperature value.
+    /// Setting a new temperature value.
     pub fn set_temperature(&mut self, value: Temperature) {
         self.temperature = Self::clamp_temeperate(value);
     }
@@ -106,8 +106,8 @@ impl Thermometer {
         }
     }
 
-    ///Reload the current device.
-    ///A reboot resets the values in the device.
+    /// Reload the current device.
+    /// A reboot resets the values in the device.
     pub fn reload(&mut self) {
         let default = Self::default();
         self.temperature = default.temperature;
