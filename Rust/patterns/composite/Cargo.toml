@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "dynamic_impl",
+  "static_impl",
+]
+
+resolver = "2"
