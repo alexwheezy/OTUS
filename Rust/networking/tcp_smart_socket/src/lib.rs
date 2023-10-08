@@ -117,7 +117,7 @@ impl fmt::Display for Response {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct SmartSocket {
     enabled: bool,
 }
