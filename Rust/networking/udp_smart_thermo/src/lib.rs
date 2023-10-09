@@ -1,13 +1,11 @@
 use anyhow::{Context, Result};
 use std::fmt::Display;
-use std::net::{ToSocketAddrs, UdpSocket};
 use std::sync::{Arc, Mutex};
-use std::thread;
+use tokio::net::{ToSocketAddrs, UdpSocket};
 
 type Temperature = f32;
 
-pub const BIND_IP: &str = "127.0.0.1:3040";
-pub const LISTEN_IP: &str = "127.0.0.1:8080";
+pub const BIND_IP: &str = "0.0.0.0:8080";
 
 #[derive(Debug)]
 pub struct SmartThermo {
@@ -22,19 +20,24 @@ impl Display for SmartThermo {
 }
 
 impl SmartThermo {
-    pub fn new(address: impl ToSocketAddrs, temperature: Temperature) -> Result<SmartThermo> {
-        let socket = UdpSocket::bind(address).context("couldn't bind to address")?;
+    pub async fn new(address: impl ToSocketAddrs, temperature: Temperature) -> Result<SmartThermo> {
+        let socket = UdpSocket::bind(&address)
+            .await
+            .context("couldn't bind to address")?;
 
         let temperature = Arc::new(Mutex::new(temperature));
         let temperature_clone = Arc::clone(&temperature);
-        thread::spawn(move || loop {
-            let mut buf = [0; 4];
-            if let Err(err) = socket.recv_from(&mut buf) {
-                println!("can't receive datagram: {err}");
-            }
+        tokio::spawn(async move {
+            loop {
+                let mut buf = [0; 4];
+                socket.send_to(&buf, BIND_IP).await.unwrap();
+                if let Err(err) = socket.recv_from(&mut buf).await {
+                    println!("can't receive datagram: {err}");
+                }
 
-            let value = f32::from_be_bytes(buf);
-            *temperature_clone.lock().unwrap() += value;
+                let value = f32::from_be_bytes(buf);
+                *temperature_clone.lock().unwrap() += value;
+            }
         });
 
         Ok(Self { temperature })
