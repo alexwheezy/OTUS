@@ -1,0 +1,25 @@
+[package]
+name = "gui_smart_socket"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8.5"
+anyhow = "1.0.75"
+tokio = { version = "1.32.0", default_features = true, features = ["full"] }
+env_logger = "0.10.0"
+eframe = { version = "0.23.0", default_features = true, features = [] }
+egui_extras = { version = "0.23.0", default_features = true, features = ["image"] }
+
+[profile.release]
+opt-level = 2 # fast and small wasm, basically same as `opt-level = 's'`
+# debug = true # include debug symbols, useful when profiling wasm
+
+[profile.dev]
+# Can't leave this on by default, because it breaks the Windows build. Related: https://github.com/rust-lang/cargo/issues/4897
+# split-debuginfo = "unpacked" # faster debug builds on mac
+# opt-level = 1                # Make debug builds run faster
+
+# Optimize all dependencies even in debug builds (does not affect workspace packages):
+[profile.dev.package."*"]
+opt-level = 2
