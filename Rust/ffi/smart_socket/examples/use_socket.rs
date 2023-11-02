@@ -1,8 +1,11 @@
-use std::fmt::Display;
+use std::{
+    ffi::{c_char, CStr, CString},
+    fmt::Display,
+};
 
 #[link(name = "smart_socket", kind = "dylib")]
 extern "C" {
-    fn smart_socket_create() -> *mut SmartSocket;
+    fn smart_socket_create(name: *const c_char) -> *mut SmartSocket;
     fn smart_socket_get_power(ptr: *const SmartSocket) -> Power;
     fn smart_socket_is_enabled(ptr: *const SmartSocket) -> bool;
     fn smart_socket_switch(ptr: *mut SmartSocket);
@@ -29,27 +32,30 @@ pub type Power = f32;
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq)]
 pub struct SmartSocket {
+    name: *const c_char,
     power: Power,
     state: Enabled,
 }
 
 impl Default for SmartSocket {
     fn default() -> Self {
-        Self::new()
+        Self::new("")
     }
 }
 
 impl SmartSocket {
-    pub fn new() -> Self {
-        unsafe { *smart_socket_create() }
+    pub fn new(name: &str) -> Self {
+        unsafe { *smart_socket_create(CString::new(name).unwrap().into_raw()) }
     }
 
     pub fn description(&self) -> String {
         format!(
             r#"
+       Name:  {name}
        Power: {power:.2} kWh
        State: {state}
             "#,
+            name = unsafe { CStr::from_ptr(self.name).to_str().unwrap() },
             power = self.power,
             state = self.state
         )
@@ -69,7 +75,7 @@ impl SmartSocket {
 }
 
 fn main() {
-    let mut smart_socket = SmartSocket::new();
+    let mut smart_socket = SmartSocket::new("Socket");
     println!("{}", smart_socket.description());
 
     assert!(smart_socket.is_enabled());

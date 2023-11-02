@@ -1,5 +1,7 @@
 #![allow(clippy::missing_safety_doc)]
 
+use std::ffi::c_char;
+
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum Enabled {
@@ -12,6 +14,7 @@ pub type Power = f32;
 #[repr(C)]
 #[derive(Clone, PartialEq)]
 pub struct SmartSocket {
+    name: *const c_char,
     power: Power,
     state: Enabled,
 }
@@ -19,6 +22,7 @@ pub struct SmartSocket {
 impl Default for SmartSocket {
     fn default() -> Self {
         Self {
+            name: "Socket".as_ptr() as *const c_char,
             power: 3.45,
             state: Enabled::On,
         }
@@ -26,8 +30,11 @@ impl Default for SmartSocket {
 }
 
 impl SmartSocket {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(name: *const c_char) -> Self {
+        Self {
+            name,
+            ..Default::default()
+        }
     }
 
     pub fn power(&self) -> Power {
@@ -56,8 +63,8 @@ impl SmartSocket {
 }
 
 #[no_mangle]
-pub extern "C" fn smart_socket_create() -> *mut SmartSocket {
-    Box::into_raw(Box::new(SmartSocket::new()))
+pub extern "C" fn smart_socket_create(name: *const c_char) -> *mut SmartSocket {
+    Box::into_raw(Box::new(SmartSocket::new(name)))
 }
 
 #[no_mangle]
