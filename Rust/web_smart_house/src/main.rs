@@ -34,6 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         App::new()
             .app_data(Data::new(house_data.clone()))
             .service(house::create_house)
+            .service(house::get_house)
             .service(house::get_houses)
             .service(house::delete_house)
             .default_service(web::to(default_response))

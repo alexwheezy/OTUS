@@ -52,10 +52,17 @@ impl MongoHouse {
         Ok(houses_vec)
     }
 
-    pub async fn delete_house(&self, house_id: &str) -> CustomResult<HouseData> {
+    pub async fn get_house(&self, house_name: &str) -> CustomResult<HouseData> {
         let collection = self.0.database("smart_house").collection("houses");
-        let query = self.create_query_find_by_id(house_id)?;
-        let board = collection.find_one_and_delete(query, None).await?;
-        board.ok_or_else(|| CustomError::NotFound(format!("house with id: {}", house_id)))
+        let query = self.create_query_find_by_id(house_name)?;
+        let house = collection.find_one(query, None).await?;
+        house.ok_or_else(|| CustomError::NotFound(format!("house with id: {}", house_name)))
+    }
+
+    pub async fn delete_house(&self, house_name: &str) -> CustomResult<HouseData> {
+        let collection = self.0.database("smart_house").collection("houses");
+        let query = self.create_query_find_by_id(house_name)?;
+        let house = collection.find_one_and_delete(query, None).await?;
+        house.ok_or_else(|| CustomError::NotFound(format!("house with id: {}", house_name)))
     }
 }

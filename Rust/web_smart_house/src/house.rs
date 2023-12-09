@@ -24,6 +24,16 @@ async fn get_houses(houses: web::Data<Arc<MongoHouse>>) -> CustomResult<HttpResp
     Ok(HttpResponse::Ok().json(data))
 }
 
+#[actix_web::get("/house/{id}")]
+async fn get_house(
+    path: Path<String>,
+    houses: web::Data<Arc<MongoHouse>>,
+) -> CustomResult<HttpResponse> {
+    let data = path.into_inner();
+    let deleted = houses.get_house(&data).await?;
+    Ok(HttpResponse::Ok().json(deleted))
+}
+
 #[actix_web::delete("/house/{id}")]
 async fn delete_house(
     path: Path<String>,
