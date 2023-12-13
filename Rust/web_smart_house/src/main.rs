@@ -42,10 +42,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .bind("127.0.0.1:8080")?
     .run()
     .await?;
-
     Ok(())
 }
 
 async fn default_response() -> CustomResult<HttpResponse> {
-    Ok(HttpResponse::Ok().body("Go to '/house'"))
+    Ok(HttpResponse::Ok().body("Go to 'https:://localhost:8080'"))
 }

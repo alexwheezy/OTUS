@@ -1,7 +1,6 @@
 use crate::error;
 use crate::mongo;
 
-use actix_web::web::Path;
 use actix_web::{web, HttpResponse};
 
 use error::CustomResult;
@@ -24,9 +23,9 @@ async fn get_houses(houses: web::Data<Arc<MongoHouse>>) -> CustomResult<HttpResp
     Ok(HttpResponse::Ok().json(data))
 }
 
-#[actix_web::get("/house/{id}")]
+#[actix_web::get("/house/{name}")]
 async fn get_house(
-    path: Path<String>,
+    path: web::Path<String>,
     houses: web::Data<Arc<MongoHouse>>,
 ) -> CustomResult<HttpResponse> {
     let data = path.into_inner();
@@ -34,9 +33,9 @@ async fn get_house(
     Ok(HttpResponse::Ok().json(deleted))
 }
 
-#[actix_web::delete("/house/{id}")]
+#[actix_web::delete("/house/{name}")]
 async fn delete_house(
-    path: Path<String>,
+    path: web::Path<String>,
     houses: web::Data<Arc<MongoHouse>>,
 ) -> CustomResult<HttpResponse> {
     let data = path.into_inner();
