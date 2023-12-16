@@ -1,6 +1,6 @@
+mod database;
+mod endpoints;
 mod error;
-mod house;
-mod mongo;
 
 use crate::body::BoxBody;
 
@@ -13,7 +13,9 @@ use error::CustomResult;
 use futures::StreamExt;
 use log::LevelFilter;
 
-use mongo::MongoHouse;
+use database::house::MongoHouse;
+use database::MongoClient;
+use endpoints::house;
 use mongodb::bson::oid::ObjectId;
 
 use std::env;
@@ -27,8 +29,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .filter_level(LevelFilter::Debug)
         .init();
 
-    let mongo = MongoHouse::new(&env::var("MONGO_CONNECTION")?).await;
-    let house_data = Arc::new(mongo);
+    let mongo = MongoClient::new(&env::var("MONGO_CONNECTION")?).await;
+    let house_data = Arc::new(MongoHouse::new(mongo.clone()).await);
 
     HttpServer::new(move || {
         App::new()
