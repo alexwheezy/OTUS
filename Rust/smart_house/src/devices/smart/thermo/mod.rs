@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::units::{
     physics::{
@@ -11,7 +11,7 @@ use crate::units::{
     Enable,
 };
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Thermometer {
     // Device name, can be anything.
     name: String,

@@ -5,9 +5,9 @@ use crate::units::{
     physics::Power::{self, Kilowatt, Watt},
     Enable,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Socket {
     // Device name, can be anything.
     name: String,
