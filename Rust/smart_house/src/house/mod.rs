@@ -5,12 +5,13 @@ pub mod room;
 
 use crate::house::room::{Devices, Room};
 use crate::providers::info::DeviceInfoProvider;
+use serde::Deserialize;
 
 use std::collections::HashMap;
 
 pub type Rooms = HashMap<String, Room>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct House {
     name: String,
     rooms: Rooms,

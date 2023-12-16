@@ -1,10 +1,12 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
+use serde::Deserialize;
 use std::collections::HashSet;
+
 pub type Devices = HashSet<String>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Room {
     devices: Devices,
 }

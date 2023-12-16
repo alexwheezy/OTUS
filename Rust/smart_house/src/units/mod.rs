@@ -1,30 +1,33 @@
 mod formatter;
 
+pub use serde::Deserialize;
+
 use physics::Power::*;
 use physics::Temperature::*;
 use std::fmt::Display;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub enum Enable {
     On,
     Off,
 }
 
 pub mod physics {
-    #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+    use super::Deserialize;
+    #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Deserialize)]
     pub enum Power {
         Watt(f32),
         Kilowatt(f32),
     }
 
-    #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+    #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Deserialize)]
     pub enum Temperature {
         Celsius(f32),
         Fahrenheit(f32),
         Kelvin(f32),
     }
 
-    #[derive(Debug, PartialEq, PartialOrd)]
+    #[derive(Debug, PartialEq, PartialOrd, Deserialize)]
     pub struct Humidity(pub f32);
 }
 
