@@ -2,16 +2,22 @@ use crate::error::{CustomError, CustomResult};
 use crate::{ObjectId, StreamExt};
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
-use smart_house::house::House;
 
+use super::room::RoomData;
 use super::MongoClient;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct HouseData {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     id: Option<ObjectId>,
-    #[serde(flatten)]
-    house: House,
+    name: String,
+    rooms: Vec<RoomData>,
+}
+
+impl HouseData {
+    pub fn rooms(&self) -> &Vec<RoomData> {
+        &self.rooms
+    }
 }
 
 #[derive(Clone)]
@@ -22,7 +28,7 @@ impl MongoHouse {
         Self(client)
     }
 
-    pub async fn create_house(&self, data: HouseData) -> CustomResult<HouseData> {
+    pub async fn new_house(&self, data: HouseData) -> CustomResult<HouseData> {
         let collection = self.0.collection().await;
         let inserted = collection.insert_one(data, None).await?;
         let id = inserted.inserted_id;

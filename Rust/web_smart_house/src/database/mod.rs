@@ -1,4 +1,6 @@
+pub mod devices;
 pub mod house;
+pub mod room;
 
 use mongodb::{Client, Collection};
 
