@@ -2,19 +2,14 @@ use crate::error::{CustomError, CustomResult};
 use mongodb::bson::{doc, ser};
 use serde::{Deserialize, Serialize};
 
-use super::devices::DevicesData;
+use super::devices::Devices;
+use super::house::HouseData;
 use super::MongoClient;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct RoomData {
     name: String,
-    devices: Vec<DevicesData>,
-}
-
-impl RoomData {
-    pub fn devices(&self) -> &Vec<DevicesData> {
-        &self.devices
-    }
+    devices: Vec<Devices>,
 }
 
 #[derive(Clone)]
@@ -30,7 +25,7 @@ impl MongoRoom {
         let query = doc! { "name": house_name };
         let update = doc! { "$push": {"rooms": ser::to_bson(&data)? } };
         collection.update_one(query, update, None).await?;
-        self.get_room(&house_name, &data.name).await
+        Ok(data)
     }
 
     pub async fn get_room(&self, house_name: &str, room_name: &str) -> CustomResult<RoomData> {
@@ -45,5 +40,14 @@ impl MongoRoom {
             ))),
             Some(room) => Ok(room.clone()),
         }
+    }
+
+    pub async fn delete_room(&self, house_name: &str, room_name: &str) -> CustomResult<HouseData> {
+        let collection = self.0.collection().await;
+        let query = doc! { "name": house_name };
+        let house = collection.find_one(query.clone(), None).await?.unwrap();
+        let update = doc! { "$pull": {"rooms": {"name": room_name}}};
+        collection.update_one(query, update, None).await?;
+        Ok(house)
     }
 }

@@ -13,7 +13,7 @@ async fn get_houses(houses: web::Data<Arc<MongoHouse>>) -> CustomResult<HttpResp
     Ok(HttpResponse::Ok().json(data))
 }
 
-#[actix_web::post("/house")]
+#[actix_web::post("/houses")]
 async fn new_house(
     house_data: web::Json<HouseData>,
     houses: web::Data<Arc<MongoHouse>>,
@@ -23,7 +23,7 @@ async fn new_house(
     Ok(HttpResponse::Ok().json(created))
 }
 
-#[actix_web::get("/house/{house_name}")]
+#[actix_web::get("/houses/{house_name}")]
 async fn get_house(
     path: web::Path<String>,
     houses: web::Data<Arc<MongoHouse>>,
@@ -33,7 +33,7 @@ async fn get_house(
     Ok(HttpResponse::Ok().json(deleted))
 }
 
-#[actix_web::delete("/house/{house_name}")]
+#[actix_web::delete("/houses/{house_name}")]
 async fn delete_house(
     path: web::Path<String>,
     houses: web::Data<Arc<MongoHouse>>,

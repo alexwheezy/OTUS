@@ -7,7 +7,7 @@ use crate::units::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Socket {
     // Device name, can be anything.
     name: String,

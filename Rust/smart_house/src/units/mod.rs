@@ -6,7 +6,7 @@ use physics::Power::*;
 use physics::Temperature::*;
 use std::fmt::Display;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Enable {
     On,
     Off,
@@ -27,7 +27,7 @@ pub mod physics {
         Kelvin(f32),
     }
 
-    #[derive(Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+    #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
     pub struct Humidity(pub f32);
 }
 

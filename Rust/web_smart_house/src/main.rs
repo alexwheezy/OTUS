@@ -9,6 +9,7 @@ use actix_web::http::StatusCode;
 use actix_web::web::Data;
 use actix_web::{web, App, HttpResponse, HttpServer};
 
+use database::devices::MongoDevices;
 use database::room::MongoRoom;
 use error::CustomResult;
 use futures::StreamExt;
@@ -16,7 +17,7 @@ use log::LevelFilter;
 
 use database::house::MongoHouse;
 use database::MongoClient;
-use endpoints::{house, room};
+use endpoints::{devices, house, room};
 use mongodb::bson::oid::ObjectId;
 
 use std::env;
@@ -34,6 +35,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mongo = MongoClient::new(&connection).await;
     let house_data = Arc::new(MongoHouse::new(mongo.clone()).await);
     let room_data = Arc::new(MongoRoom::new(mongo.clone()).await);
+    let devices_data = Arc::new(MongoDevices::new(mongo.clone()).await);
 
     HttpServer::new(move || {
         App::new()
@@ -45,6 +47,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .app_data(Data::new(room_data.clone()))
             .service(room::add_room)
             .service(room::get_room)
+            .service(room::delete_room)
+            .app_data(Data::new(devices_data.clone()))
+            .service(devices::add_device)
+            .service(devices::delete_device)
             .default_service(web::to(default_response))
     })
     .bind("127.0.0.1:8080")?

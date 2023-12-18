@@ -14,7 +14,7 @@ async fn get_houses(houses: web::Data<Arc<MongoHouse>>) -> CustomResult<HttpResp
     Ok(HttpResponse::Ok().json(data))
 }
 
-#[actix_web::post("/house/{house_name}/room")]
+#[actix_web::post("/houses/{house_name}/rooms")]
 async fn add_room(
     house_name: web::Path<String>,
     room_data: web::Json<RoomData>,
@@ -25,12 +25,22 @@ async fn add_room(
     Ok(HttpResponse::Ok().json(created))
 }
 
-#[actix_web::get("/house/{house_name}/room/{room_name}")]
+#[actix_web::get("/houses/{house_name}/rooms/{room_name}")]
 async fn get_room(
     path: web::Path<(String, String)>,
     rooms: web::Data<Arc<MongoRoom>>,
 ) -> CustomResult<HttpResponse> {
     let (house_name, room_name) = path.into_inner();
     let created = rooms.get_room(&house_name, &room_name).await?;
+    Ok(HttpResponse::Ok().json(created))
+}
+
+#[actix_web::delete("/houses/{house_name}/rooms/{room_name}")]
+async fn delete_room(
+    path: web::Path<(String, String)>,
+    rooms: web::Data<Arc<MongoRoom>>,
+) -> CustomResult<HttpResponse> {
+    let (house_name, room_name) = path.into_inner();
+    let created = rooms.delete_room(&house_name, &room_name).await?;
     Ok(HttpResponse::Ok().json(created))
 }

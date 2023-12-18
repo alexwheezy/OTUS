@@ -11,7 +11,7 @@ use crate::units::{
     Enable,
 };
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Thermometer {
     // Device name, can be anything.
     name: String,
